@@ -1,6 +1,8 @@
 version: 1.0.29pre1-{build}
 image: Visual Studio 2017
-configuration: Debug
+configuration:
+  - Debug
+  - Release
 platform:
   - Win32
   - x64
@@ -19,5 +21,10 @@ build:
   verbosity: minimal
 test_script:
   - ctest -V
+after_build:
+  - dir
+  - 7z a ..\sndfile-%PLATFORM%-%CONFIGURATION%.zip "%APPVEYOR_BUILD_FOLDER%\CMakeBuild\%CONFIGURATION%\*.dll"
+artifacts:
+  - path: sndfile-%PLATFORM%-%CONFIGURATION%.zip
 cache:
   C:\Tools\vcpkg\Installed -> appveyor.yml
