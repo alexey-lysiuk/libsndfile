@@ -15,14 +15,21 @@ before_build:
   - cd CMakeBuild
   - if %platform%==Win32 set CMAKE_GENERATOR=Visual Studio 15 2017
   - if %platform%==x64 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-  - cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+  - if %configuration%=Debug set BUILD_SHARED_LIBS=ON
+  - if %configuration%=Release set BUILD_SHARED_LIBS=OFF
+  - cmake .. -G"%CMAKE_GENERATOR%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 build:
   project: c:\projects\libsndfile\CMakeBuild\sndfile.sln
   verbosity: minimal
-test_script:
-  - ctest -V
+for:
+-
+  matrix:
+    only:
+      - configuration: Debug
+  test_script:
+    - ctest -V
 after_build:
-  - dir
+  # - dir
   - 7z a ..\sndfile-%PLATFORM%-%CONFIGURATION%.zip "%APPVEYOR_BUILD_FOLDER%\CMakeBuild\%CONFIGURATION%\*.dll"
 artifacts:
   - path: sndfile-%PLATFORM%-%CONFIGURATION%.zip
